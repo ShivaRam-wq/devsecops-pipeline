@@ -1,18 +1,24 @@
 ---
-- name: Deploy Secure Container from AWS ECR
-  hosts: webservers
+- name: Deploy Secure Container to Kubernetes Cluster
+  hosts: kubernetes
   become: yes
   tasks:
-    - name: Authenticate with AWS ECR Vault
-      shell: "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 522632170020.dkr.ecr.ap-south-1.amazonaws.com"
-           
-    - name: Ensure old containers and memory are wiped
+    - name: Dynamically generate an AWS ECR Authentication Secret for K8s
       shell: |
-         docker stop my-app || true
-         docker rm my-app || true
-         docker system prune -af || true
+        kubectl create secret docker-registry ecr-secret \
+          --docker-server=522632170020.dkr.ecr.ap-south-1.amazonaws.com \
+          --docker-username=AWS \
+          --docker-password=$(aws ecr get-login-password --region ap-south-1) \
+          --dry-run=client -o yaml | kubectl apply -f -
 
-    - name: Pull and Run the New Secured Application
-      shell: |
-         docker pull 522632170020.dkr.ecr.ap-south-1.amazonaws.com/devsecops-app:latest
-         docker run -d -p 80:80 --name my-app 522632170020.dkr.ecr.ap-south-1.amazonaws.com/devsecops-app:latest
+    - name: Push the K8s Manifest file to the cluster
+      copy:
+        src: k8s-app.yml
+        dest: /home/ec2-user/k8s-app.yml
+        mode: '0644'
+
+    - name: Instruct Kubernetes to Apply the new Cloud Manifest
+      shell: kubectl apply -f /home/ec2-user/k8s-app.yml
+      
+    - name: Force K8s to restart the web pods so it pulls the absolute newest image!
+      shell: kubectl rollout restart deployment/devsecops-deployment
