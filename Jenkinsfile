@@ -29,6 +29,8 @@ pipeline {
                     echo "Deploying to $HOST..."
                     scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null Dockerfile index.html ec2-user@$HOST:~
                     ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ec2-user@$HOST "
+                        sudo systemctl stop nginx || true
+                        sudo systemctl disable nginx || true
                         docker stop my-app || true
                         docker rm my-app || true
                         docker build -t devsecops-app .
