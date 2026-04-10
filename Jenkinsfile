@@ -14,12 +14,17 @@ pipeline {
             }
             steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh "${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey=devsecops-app \
-                        -Dsonar.sources=. \
-                        -Dsonar.token=${env.SONAR_TOKEN}" 
+                    // This explicitly forces Jenkins to unlock the token and pass it as a variable!
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN_SECRET')]) {
+                        sh "${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=devsecops-app \
+                            -Dsonar.sources=. \
+                            -Dsonar.token=${SONAR_TOKEN_SECRET}"
+                    }
                 }
             }
+        }
+
         }
 
 
