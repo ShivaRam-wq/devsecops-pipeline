@@ -17,7 +17,7 @@ pipeline {
                     sh "${scannerHome}/bin/sonar-scanner \
                         -Dsonar.projectKey=devsecops-app \
                         -Dsonar.sources=. \
-                        -Dsonar.login=${env.SONAR_AUTH_TOKEN}" 
+                        -Dsonar.token=${env.SONAR_TOKEN}" 
                 }
             }
         }
