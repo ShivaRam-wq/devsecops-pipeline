@@ -81,8 +81,11 @@ pipeline {
     
     post {
         always {
+            // Save the OWASP ZAP HTML report to the Jenkins dashboard
+            archiveArtifacts artifacts: 'zap_report.html', allowEmptyArchive: true
             sh 'docker system prune -af || true'
             cleanWs()
         }
     }
+
 }
