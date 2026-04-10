@@ -10,18 +10,18 @@ pipeline {
 
         stage('2. Static Application Security Testing (SAST)') {
             environment {
-                // This points to the new tool you just named in Jenkins!
                 scannerHome = tool 'sonar-scanner'
             }
             steps {
-                // This securely pulls your Token and IP from the Jenkins System configuration
                 withSonarQubeEnv('sonar-server') {
                     sh "${scannerHome}/bin/sonar-scanner \
                         -Dsonar.projectKey=devsecops-app \
-                        -Dsonar.sources=." 
+                        -Dsonar.sources=. \
+                        -Dsonar.login=$SONAR_AUTH_TOKEN" 
                 }
             }
         }
+
 
         stage('3. Build Container Image') {
             steps {
