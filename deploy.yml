@@ -1,0 +1,18 @@
+---
+- name: Deploy Secure Container from AWS ECR
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: Authenticate with AWS ECR Vault
+      shell: "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 522632170020.dkr.ecr.ap-south-1.amazonaws.com"
+           
+    - name: Ensure old containers and memory are wiped
+      shell: |
+         docker stop my-app || true
+         docker rm my-app || true
+         docker system prune -af || true
+
+    - name: Pull and Run the New Secured Application
+      shell: |
+         docker pull 522632170020.dkr.ecr.ap-south-1.amazonaws.com/devsecops-app:latest
+         docker run -d -p 80:80 --name my-app 522632170020.dkr.ecr.ap-south-1.amazonaws.com/devsecops-app:latest
