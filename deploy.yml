@@ -9,7 +9,7 @@
           --docker-server=522632170020.dkr.ecr.ap-south-1.amazonaws.com \
           --docker-username=AWS \
           --docker-password=$(aws ecr get-login-password --region ap-south-1) \
-          --dry-run=client -o yaml | kubectl apply -f -
+          --dry-run=client -o yaml | kubectl apply -f - --validate=false
 
     - name: Push the K8s Manifest file to the cluster
       copy:
@@ -18,7 +18,7 @@
         mode: '0644'
 
     - name: Instruct Kubernetes to Apply the new Cloud Manifest
-      shell: kubectl apply -f /home/ec2-user/k8s-app.yml
+      shell: kubectl apply -f /home/ec2-user/k8s-app.yml --validate=false
       
-    - name: Force K8s to restart the web pods so it pulls the absolute newest image!
+    - name: Force K8s to restart the web pods so it pulls the newest image!
       shell: kubectl rollout restart deployment/devsecops-deployment
