@@ -26,11 +26,13 @@ pipeline {
                         sh "${scannerHome}/bin/sonar-scanner \
                             -Dsonar.projectKey=devsecops-app \
                             -Dsonar.sources=. \
-                            -Dsonar.token=${SONAR_TOKEN_SECRET}"
+                            -Dsonar.token=${SONAR_TOKEN_SECRET} \
+                            -Dsonar.ws.timeout=300"
                     }
                 }
             }
         }
+
 
         stage('3. Build Container Image') {
             steps {
