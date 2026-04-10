@@ -14,7 +14,6 @@ pipeline {
             }
             steps {
                 withSonarQubeEnv('sonar-server') {
-                    // This explicitly forces Jenkins to unlock the token and pass it as a variable!
                     withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN_SECRET')]) {
                         sh "${scannerHome}/bin/sonar-scanner \
                             -Dsonar.projectKey=devsecops-app \
@@ -24,10 +23,6 @@ pipeline {
                 }
             }
         }
-
-        }
-
-
 
         stage('3. Build Container Image') {
             steps {
