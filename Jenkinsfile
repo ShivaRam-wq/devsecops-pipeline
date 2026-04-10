@@ -17,10 +17,11 @@ pipeline {
                     sh "${scannerHome}/bin/sonar-scanner \
                         -Dsonar.projectKey=devsecops-app \
                         -Dsonar.sources=. \
-                        -Dsonar.login=$SONAR_AUTH_TOKEN" 
+                        -Dsonar.login=${env.SONAR_AUTH_TOKEN}" 
                 }
             }
         }
+
 
 
         stage('3. Build Container Image') {
