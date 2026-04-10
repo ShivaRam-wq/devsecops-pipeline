@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devsecops-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devsecops-frontend
+  template:
+    metadata:
+      labels:
+        app: devsecops-frontend
+    spec:
+      containers:
+      - name: devsecops-container
+        image: 522632170020.dkr.ecr.ap-south-1.amazonaws.com/devsecops-app:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: ecr-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devsecops-service
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080
+  selector:
+    app: devsecops-frontend
