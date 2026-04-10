@@ -8,22 +8,35 @@ pipeline {
             }
         }
 
-        stage('2. Build Container Image') {
+        stage('2. Static Application Security Testing (SAST)') {
+            environment {
+                // This points to the new tool you just named in Jenkins!
+                scannerHome = tool 'sonar-scanner'
+            }
+            steps {
+                // This securely pulls your Token and IP from the Jenkins System configuration
+                withSonarQubeEnv('sonar-server') {
+                    sh "${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=devsecops-app \
+                        -Dsonar.sources=." 
+                }
+            }
+        }
+
+        stage('3. Build Container Image') {
             steps {
                 sh 'docker build -t devsecops-app .'
             }
         }
 
-        stage('3. DevSecOps Vulnerability Scan') {
+        stage('4. Container Vulnerability Scan (Trivy)') {
             steps {
-                // This scans the image and fails the pipeline if Severe vulnerabilities are found!
                 sh 'trivy image --severity HIGH,CRITICAL devsecops-app'
             }
         }
 
-        stage('4. Deploy to Servers') {
+        stage('5. Deploy to Servers') {
             steps {
-                // Using scp and ssh to build and run on target servers seamlessly
                 sh '''
                 for HOST in "13.126.145.72" "43.205.254.82"; do
                     echo "Deploying to $HOST..."
@@ -45,7 +58,6 @@ pipeline {
     
     post {
         always {
-            // Aggressive cleanup to prevent your t3.micro disk full error from returning!
             sh 'docker system prune -af || true'
             cleanWs()
         }
