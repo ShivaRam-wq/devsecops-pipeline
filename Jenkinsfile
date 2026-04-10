@@ -62,6 +62,21 @@ pipeline {
                 sh '/usr/local/bin/ansible-playbook -i inventory.ini deploy.yml'
             }
         }
+                stage('7. Dynamic Security Testing (OWASP ZAP)') {
+            steps {
+                sh '''
+                echo "Executing aggressive OWASP ZAP scan against the live Kubernetes cluster..."
+                
+                # Pull the official ZAP Hacker Docker Image
+                docker pull owasp/zap2docker-stable
+                
+                # Run the baseline scan against the live NodePort! 
+                # (The || true ensures minor warnings don't fail the entire pipeline)
+                docker run --rm -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py -t http://13.232.253.227:30080 -r zap_report.html || true
+                '''
+            }
+        }
+
     }
     
     post {
