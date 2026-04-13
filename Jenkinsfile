@@ -68,7 +68,7 @@ pipeline {
                 
                 # Run the baseline scan against the live NodePort! 
                 # (The || true ensures minor warnings don't fail the entire pipeline)
-                docker run --rm -v $(pwd):/zap/wrk/:rw -t zaproxy/zap-stable zap-baseline.py -t http://13.232.253.227:30080 -r zap_report.html || true
+                docker run --rm -v $(pwd):/zap/wrk/:rw -t zaproxy/zap-stable zap-baseline.py -t http://13.127.141.111:30080 -r zap_report.html || true
                 '''
             }
         }
