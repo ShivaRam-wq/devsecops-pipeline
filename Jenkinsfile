@@ -75,11 +75,14 @@ pipeline {
     }
 
     post {
+        success {
+            sh "aws sns publish --topic-arn arn:aws:sns:ap-south-1:522632170020:Pipeline-Alerts --message 'Deployment Success: The DevSecOps Pipeline completed and successfully deployed the app to Kubernetes!' --subject 'Pipeline Success #$BUILD_NUMBER' --region ap-south-1"
+        }
+        failure {
+            sh "aws sns publish --topic-arn arn:aws:sns:ap-south-1:522632170020:Pipeline-Alerts --message 'Security Breach or Build Failure: The DevSecOps Pipeline has CRASHED! Check Jenkins log immediately.' --subject 'Pipeline FAILED #$BUILD_NUMBER' --region ap-south-1"
+        }
         always {
-            // Save the OWASP ZAP HTML report to the Jenkins dashboard
             archiveArtifacts artifacts: 'zap_report.html', allowEmptyArchive: true
-            
-            // Aggressive workspace and docker cleanup to protect the Jenkins 1GB t3.micro limits
             sh 'docker system prune -af || true'
             cleanWs()
         }
